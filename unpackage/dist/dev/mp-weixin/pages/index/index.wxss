@@ -195,6 +195,12 @@
           height: 90rpx;
           line-height: 90rpx;
           color: #fff;
+          font-size: 30rpx;
+          vertical-align: middle;
+}
+.index .click-desk .open-or-book .button button text.data-v-4cff7420 {
+            font-size: 30rpx;
+            margin-right: 10rpx;
 }
 .index .click-desk .open-or-book .button button.open-desk.data-v-4cff7420 {
             background: #f7903b;

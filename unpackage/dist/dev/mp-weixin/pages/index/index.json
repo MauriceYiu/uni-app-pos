@@ -1,4 +1,6 @@
 {
   "navigationBarTitleText": "首页",
-  "usingComponents": {}
+  "usingComponents": {
+    "open-or-book": "/components/open-or-book/open-or-book"
+  }
 }

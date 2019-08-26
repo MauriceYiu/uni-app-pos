@@ -36,18 +36,27 @@
     <view :class="showOpenOrBook?'click-desk show':'click-desk'" @tap="showOpenOrBook=false">
         <view class="open-or-book" @tap.stop="(showServerList=false,showSelStatus=false)">
             <view class="button">
-                <button class="open-desk" @tap.stop="doOpenOrBook('BUSY')"><i class="iconfont icon-diancai"></i>开单</button>
-                <button class="sure" @tap.stop="doOpenOrBook('BOOK')"><i class="iconfont icon-yuyue"></i>预定</button>
+                <button class="open-desk" @tap.stop="doOpenOrBook('BUSY')"><text class="iconfont icon-diancai"></text>开单</button>
+                <button class="sure" @tap.stop="doOpenOrBook('BOOK')"><text class="iconfont icon-yuyue"></text>预定</button>
             </view>
         </view>
     </view>
+    <openOrBook  
+    v-if="showOpenOrBookTable" 
+    :curSelTableOpenInfo="curSelTableOpenInfo"
+    @closeOpenOrBookTable="showOpenOrBookTable=false;"
+    />
   </view>
 </template>
 <script>
-import { getAreaInfo,getDesks,getDeskDetail } from "./../../api/index/";
-import {mapActions} from "vuex";
+import { getAreaInfo, getDesks, getDeskDetail,getOpenOrBookInfo } from "./../../api/index/";
+import { mapActions } from "vuex";
+import openOrBook from "./../../components/open-or-book/open-or-book";
 
 export default {
+  components:{
+    openOrBook
+  },
   data() {
     return {
     showOpenOrBook:false,
@@ -61,7 +70,7 @@ export default {
         names:[],
       },//当前所选台桌的开台信息
       nowDeskOrderInfo:{},//当前台桌的信息
-      showOpenTable:false,//是否显示开启台桌弹窗
+      showOpenOrBookTable:false,//是否显示开启台桌弹窗
       curSelDesk:{},//当前选择的台桌
       curSelDeskIndex:-1,//当前选择台桌的索引
       isChange:false,//当前是否处于更改台桌信息模式
@@ -73,7 +82,8 @@ export default {
       nowAreaIndex: -1, //当前所选择区域的索引
       nowSelArea: {
           id:0,
-      } //当前所选择区域的索引
+      }, //当前所选择区域的索引
+      canClick:true,
     };
   },
   watch: {
@@ -86,6 +96,42 @@ export default {
       }
   },
   methods: {
+    doOpenOrBook(type){
+        this.isOpenOrBook = type;
+        this.showOpenOrBook = false;
+        this.doGetOpenOrBookInfo();
+    },
+    async doGetOpenOrBookInfo(){
+        if(!this.canClick){
+            return;
+        }
+        this.canClick = false;
+        let data={
+              storeId:this.storeId,
+              parId:this.curSelDesk.parId,
+              numId:this.curSelDesk.deskID,
+        };
+        try {
+          let res = await getOpenOrBookInfo(data);
+          this.canClick = true;
+          if(res.data.result.code == 200){
+              let data = res.data.data;
+              data = Object.assign(data,{
+                  notice:""
+              });
+              this.curSelTableOpenInfo = data;
+              this.showOpenOrBookTable=true;
+          }else if(res.data.result.code == 400){
+              this.$message({
+                  message: res.data.result.msg,
+                  showClose: true,
+                  type: 'error'
+              });
+          }
+        } catch (error) {
+            this.canClick = true;
+        }
+    },
       // 点击台桌,进行预约或开台
     clickDesk(item,index){
         this.curSelDesk=item;
@@ -139,7 +185,7 @@ export default {
                     }],
                     notice:res.data.numTrans.notice
                 }
-                this.showOpenTable = true;
+                this.showOpenOrBookTable = true;
             }
         }
     },
@@ -317,6 +363,12 @@ export default {
                 height: 90upx;
                 line-height: 90upx;
                 color: #fff;
+                font-size: 30upx;
+                vertical-align: middle;
+                text{
+                  font-size: 30upx;
+                  margin-right: 10upx;
+                }
                 &.open-desk{
                     background: rgb(247, 144, 59);
                 }
