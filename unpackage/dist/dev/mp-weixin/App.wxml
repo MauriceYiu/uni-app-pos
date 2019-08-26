@@ -1,0 +1,1 @@
+<view><mpopup vue-id="1" show="{{ispop}}" types="{{types}}" span="{{span}}" bind:__l="__l"></mpopup></view>
